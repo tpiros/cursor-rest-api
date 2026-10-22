@@ -2,8 +2,10 @@ import express from "express";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
+import ordersRouter from "../routes/orders.js";
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 const dataDir = join(__dirname, "..", "data");
 
 const users = JSON.parse(readFileSync(join(dataDir, "users.json"), "utf8"));
@@ -78,11 +80,18 @@ app.get("/products/:id", (req, res) => {
   res.json(product);
 });
 
+app.use("/orders", ordersRouter);
+
 app.use((_req, res) => {
   sendError(res, 404, "NOT_FOUND", "Route not found");
 });
 
-const PORT = Number(process.env.PORT) || 3000;
-app.listen(PORT, () => {
-  console.log(`Server listening on http://localhost:${PORT}`);
-});
+export default app;
+
+const isDirectRun = process.argv[1] && __filename === process.argv[1];
+if (isDirectRun) {
+  const PORT = Number(process.env.PORT) || 3000;
+  app.listen(PORT, () => {
+    console.log(`Server listening on http://localhost:${PORT}`);
+  });
+}
