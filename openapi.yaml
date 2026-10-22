@@ -1,0 +1,473 @@
+openapi: 3.0.3
+info:
+  title: REST API
+  version: 1.0.0
+  description: |
+    In-memory REST API (Node.js 24 and Express) for users and products.
+    Seed data is loaded when the process starts. `POST /users` appends to
+    that in-memory list until the process exits. There is no authentication.
+
+    Any request that does not match a path below responds with `404` and
+    the Error schema: `error.code` is `NOT_FOUND` and `error.message` is
+    `Route not found`.
+servers:
+  - url: http://localhost:3000
+    description: Local server. `PORT` overrides the port; the default is 3000.
+tags:
+  - name: Health
+    description: Process liveness.
+  - name: Users
+    description: In-memory user records.
+  - name: Products
+    description: In-memory product catalog.
+security: []
+paths:
+  /health:
+    get:
+      tags: [Health]
+      operationId: getHealth
+      summary: Service health
+      description: Reports that the process is up.
+      responses:
+        "200":
+          description: The service is running.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Health"
+              example:
+                status: ok
+
+  /users:
+    get:
+      tags: [Users]
+      operationId: listUsers
+      summary: List users
+      description: |
+        Returns every user currently in memory, in insertion order.
+        When `role` is a non-empty string, the list is limited to users
+        whose `role` is an exact match. An omitted or empty `role` returns
+        the full list.
+      parameters:
+        - name: role
+          in: query
+          required: false
+          description: Exact `role` match. Seed roles are `admin`, `user`, and `moderator`.
+          schema:
+            type: string
+          example: admin
+      responses:
+        "200":
+          description: Users matching the optional role filter.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+              examples:
+                all:
+                  summary: No role filter (first seed records)
+                  description: A fresh process returns all ten seed users. This example shows the response shape.
+                  value:
+                    - id: 1
+                      name: Alice Johnson
+                      email: alice@example.com
+                      role: admin
+                    - id: 2
+                      name: Bob Smith
+                      email: bob@example.com
+                      role: user
+                admins:
+                  summary: role=admin
+                  description: Complete response for `?role=admin` against the seed data.
+                  value:
+                    - id: 1
+                      name: Alice Johnson
+                      email: alice@example.com
+                      role: admin
+                    - id: 7
+                      name: Grace Kim
+                      email: grace@example.com
+                      role: admin
+    post:
+      tags: [Users]
+      operationId: createUser
+      summary: Create a user
+      description: |
+        Creates a user and appends it to the in-memory list.
+        `id` is one greater than the highest existing user id (11 on a
+        fresh process, after the seed ids 1 through 10).
+        `name` and `email` are trimmed before they are stored.
+        `role` defaults to `user` when it is omitted, not a string, or an
+        empty string. Any other string is trimmed and stored, including a
+        whitespace-only value, which is stored as an empty string.
+        Other JSON properties are ignored.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserCreate"
+            examples:
+              trimmedDefaults:
+                summary: Name and email are trimmed; role defaults to user
+                value:
+                  name: "  Ada Lovelace  "
+                  email: "  ada@example.com  "
+              withRole:
+                summary: Explicit role
+                value:
+                  name: Mia Chen
+                  email: mia@example.com
+                  role: moderator
+      responses:
+        "201":
+          description: The created user, including the server-assigned id.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+              examples:
+                trimmedDefaults:
+                  summary: Trimmed fields and default role
+                  description: Response on a fresh process for the `trimmedDefaults` request body.
+                  value:
+                    id: 11
+                    name: Ada Lovelace
+                    email: ada@example.com
+                    role: user
+                withRole:
+                  summary: Explicit role stored as sent
+                  description: Response on a fresh process for the `withRole` request body.
+                  value:
+                    id: 11
+                    name: Mia Chen
+                    email: mia@example.com
+                    role: moderator
+        "400":
+          description: |
+            `name` or `email` is missing, not a string, or blank after trimming.
+            `name` is checked first. If both are invalid, the message is
+            `name is required`.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              examples:
+                nameRequired:
+                  summary: Name missing or blank
+                  value:
+                    error:
+                      code: VALIDATION_ERROR
+                      message: name is required
+                emailRequired:
+                  summary: Email missing or blank
+                  value:
+                    error:
+                      code: VALIDATION_ERROR
+                      message: email is required
+
+  /users/{id}:
+    get:
+      tags: [Users]
+      operationId: getUser
+      summary: Get a user by id
+      description: |
+        Looks up a user by numeric id. The path segment is converted with
+        `Number` and compared to `user.id`. An unknown or non-numeric id
+        returns 404. The error message uses the raw path segment.
+      parameters:
+        - $ref: "#/components/parameters/UserId"
+      responses:
+        "200":
+          description: The matching user.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+              example:
+                id: 1
+                name: Alice Johnson
+                email: alice@example.com
+                role: admin
+        "404":
+          description: No user has this id.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                error:
+                  code: NOT_FOUND
+                  message: User with id 999 not found
+
+  /products:
+    get:
+      tags: [Products]
+      operationId: listProducts
+      summary: List products
+      description: |
+        Returns products currently in memory, in seed order.
+        `category` and `inStock` may be used together. Each filter is
+        applied only when its query value meets the rule below; otherwise
+        that filter is skipped.
+      parameters:
+        - name: category
+          in: query
+          required: false
+          description: |
+            Exact `category` match when the value is non-empty.
+            Seed categories are `electronics`, `accessories`, and `furniture`.
+            An omitted or empty value does not filter by category.
+          schema:
+            type: string
+          example: electronics
+        - name: inStock
+          in: query
+          required: false
+          description: |
+            Only the exact string `true` filters the list, and it keeps
+            products whose `inStock` is true. Any other value, including
+            `false`, is ignored.
+          schema:
+            type: string
+            example: "true"
+          example: "true"
+      responses:
+        "200":
+          description: Products matching the optional filters.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Product"
+              examples:
+                all:
+                  summary: No filters (first seed records)
+                  description: A fresh process returns all fifteen seed products. This example shows the response shape, including an out-of-stock item.
+                  value:
+                    - id: 1
+                      name: Wireless Mouse
+                      price: 29.99
+                      category: electronics
+                      inStock: true
+                    - id: 3
+                      name: USB-C Hub
+                      price: 45
+                      category: electronics
+                      inStock: false
+                furniture:
+                  summary: category=furniture
+                  description: Complete response for `?category=furniture` against the seed data. Whole-number prices are JSON numbers (`299`, not `299.00`).
+                  value:
+                    - id: 6
+                      name: Ergonomic Chair
+                      price: 299
+                      category: furniture
+                      inStock: false
+                    - id: 7
+                      name: Standing Desk
+                      price: 449
+                      category: furniture
+                      inStock: true
+                    - id: 12
+                      name: Bookshelf
+                      price: 129
+                      category: furniture
+                      inStock: true
+                electronicsInStock:
+                  summary: category=electronics and inStock=true
+                  description: Complete response for `?category=electronics&inStock=true` against the seed data.
+                  value:
+                    - id: 1
+                      name: Wireless Mouse
+                      price: 29.99
+                      category: electronics
+                      inStock: true
+                    - id: 2
+                      name: Mechanical Keyboard
+                      price: 89.99
+                      category: electronics
+                      inStock: true
+                    - id: 8
+                      name: Noise Cancelling Headphones
+                      price: 199.99
+                      category: electronics
+                      inStock: true
+                    - id: 13
+                      name: Smart Lamp
+                      price: 54.99
+                      category: electronics
+                      inStock: true
+
+  /products/{id}:
+    get:
+      tags: [Products]
+      operationId: getProduct
+      summary: Get a product by id
+      description: |
+        Looks up a product by numeric id. The path segment is converted with
+        `Number` and compared to `product.id`. An unknown or non-numeric id
+        returns 404. The error message uses the raw path segment.
+      parameters:
+        - $ref: "#/components/parameters/ProductId"
+      responses:
+        "200":
+          description: The matching product.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+              example:
+                id: 1
+                name: Wireless Mouse
+                price: 29.99
+                category: electronics
+                inStock: true
+        "404":
+          description: No product has this id.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                error:
+                  code: NOT_FOUND
+                  message: Product with id 999 not found
+
+components:
+  parameters:
+    UserId:
+      name: id
+      in: path
+      required: true
+      description: User id.
+      schema:
+        type: integer
+        example: 1
+    ProductId:
+      name: id
+      in: path
+      required: true
+      description: Product id.
+      schema:
+        type: integer
+        example: 1
+  schemas:
+    Health:
+      type: object
+      additionalProperties: false
+      required: [status]
+      properties:
+        status:
+          type: string
+          description: Always `ok` when the process is serving traffic.
+          enum: [ok]
+      example:
+        status: ok
+    User:
+      type: object
+      additionalProperties: false
+      required: [id, name, email, role]
+      properties:
+        id:
+          type: integer
+          description: Server-assigned identifier. Seed users use 1 through 10.
+          example: 1
+        name:
+          type: string
+          example: Alice Johnson
+        email:
+          type: string
+          description: Stored as given after trimming. The API does not check email format.
+          example: alice@example.com
+        role:
+          type: string
+          description: Free-form role label. Seed data uses `admin`, `user`, and `moderator`.
+          example: admin
+      example:
+        id: 1
+        name: Alice Johnson
+        email: alice@example.com
+        role: admin
+    UserCreate:
+      type: object
+      required: [name, email]
+      description: JSON body for `POST /users`. Unknown properties are ignored.
+      properties:
+        name:
+          type: string
+          description: |
+            Required. Missing, non-string, or blank (including whitespace-only)
+            values fail with `name is required`. The stored value is trimmed.
+          example: Mia Chen
+        email:
+          type: string
+          description: |
+            Required. Missing, non-string, or blank (including whitespace-only)
+            values fail with `email is required`. The stored value is trimmed.
+            Format is not validated.
+          example: mia@example.com
+        role:
+          type: string
+          description: |
+            Optional. Omitted, non-string, and empty-string values are stored
+            as `user`. Any other string is trimmed and stored.
+          example: moderator
+      example:
+        name: Mia Chen
+        email: mia@example.com
+        role: moderator
+    Product:
+      type: object
+      additionalProperties: false
+      required: [id, name, price, category, inStock]
+      properties:
+        id:
+          type: integer
+          description: Seed products use 1 through 15.
+          example: 1
+        name:
+          type: string
+          example: Wireless Mouse
+        price:
+          type: number
+          description: JSON number. Whole amounts from the seed file are returned without a fractional part (for example `45`, not `45.00`).
+          example: 29.99
+        category:
+          type: string
+          description: Seed data uses `electronics`, `accessories`, and `furniture`.
+          example: electronics
+        inStock:
+          type: boolean
+          example: true
+      example:
+        id: 1
+        name: Wireless Mouse
+        price: 29.99
+        category: electronics
+        inStock: true
+    Error:
+      type: object
+      additionalProperties: false
+      required: [error]
+      properties:
+        error:
+          type: object
+          additionalProperties: false
+          required: [code, message]
+          properties:
+            code:
+              type: string
+              description: |
+                `NOT_FOUND` for an unknown resource or route.
+                `VALIDATION_ERROR` when `POST /users` rejects `name` or `email`.
+              enum: [NOT_FOUND, VALIDATION_ERROR]
+            message:
+              type: string
+      example:
+        error:
+          code: NOT_FOUND
+          message: User with id 999 not found

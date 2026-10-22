@@ -1,0 +1,17 @@
+[
+  { "id": 1, "name": "Wireless Mouse", "price": 29.99, "category": "electronics", "inStock": true },
+  { "id": 2, "name": "Mechanical Keyboard", "price": 89.99, "category": "electronics", "inStock": true },
+  { "id": 3, "name": "USB-C Hub", "price": 45.00, "category": "electronics", "inStock": false },
+  { "id": 4, "name": "Laptop Stand", "price": 39.99, "category": "accessories", "inStock": true },
+  { "id": 5, "name": "Monitor Light Bar", "price": 59.99, "category": "accessories", "inStock": true },
+  { "id": 6, "name": "Ergonomic Chair", "price": 299.00, "category": "furniture", "inStock": false },
+  { "id": 7, "name": "Standing Desk", "price": 449.00, "category": "furniture", "inStock": true },
+  { "id": 8, "name": "Noise Cancelling Headphones", "price": 199.99, "category": "electronics", "inStock": true },
+  { "id": 9, "name": "Webcam HD", "price": 79.99, "category": "electronics", "inStock": false },
+  { "id": 10, "name": "Desk Mat", "price": 24.99, "category": "accessories", "inStock": true },
+  { "id": 11, "name": "Cable Organizer", "price": 12.99, "category": "accessories", "inStock": true },
+  { "id": 12, "name": "Bookshelf", "price": 129.00, "category": "furniture", "inStock": true },
+  { "id": 13, "name": "Smart Lamp", "price": 54.99, "category": "electronics", "inStock": true },
+  { "id": 14, "name": "Portable SSD 1TB", "price": 109.99, "category": "electronics", "inStock": false },
+  { "id": 15, "name": "Whiteboard", "price": 69.99, "category": "accessories", "inStock": true }
+]
