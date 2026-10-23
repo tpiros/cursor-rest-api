@@ -43,7 +43,11 @@ export default function App() {
       .catch((err: unknown) => {
         if (cancelled) return;
         setProducts([]);
-        setError(err instanceof Error ? err.message : "Failed to load products");
+        setError(
+          err instanceof Error
+            ? err.message
+            : "Could not load products. Retry, or check that the API is running and VITE_API_URL is set.",
+        );
       })
       .finally(() => {
         if (!cancelled) setLoading(false);

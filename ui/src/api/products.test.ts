@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
-import { buildProductsUrl, uniqueCategories } from "./products";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { buildProductsUrl, fetchProducts, uniqueCategories } from "./products";
 import type { Product } from "../types";
 
 const sampleProducts: Product[] = [
@@ -25,6 +25,11 @@ const sampleProducts: Product[] = [
     inStock: true,
   },
 ];
+
+afterEach(() => {
+  vi.unstubAllGlobals();
+  vi.restoreAllMocks();
+});
 
 describe("buildProductsUrl", () => {
   it("builds the list URL with no filters", () => {
@@ -56,6 +61,14 @@ describe("buildProductsUrl", () => {
       }),
     ).toBe("http://localhost:3000/products?category=accessories");
   });
+
+  it("rejects a missing base URL with a next step", () => {
+    expect(() => buildProductsUrl("")).toThrow(/Set VITE_API_URL/);
+  });
+
+  it("rejects an invalid base URL with a next step", () => {
+    expect(() => buildProductsUrl("not-a-url")).toThrow(/full URL/);
+  });
 });
 
 describe("uniqueCategories", () => {
@@ -64,5 +77,66 @@ describe("uniqueCategories", () => {
       "electronics",
       "furniture",
     ]);
+  });
+});
+
+describe("fetchProducts", () => {
+  it("returns products when the API responds with an array", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => sampleProducts,
+      }),
+    );
+
+    await expect(fetchProducts("http://localhost:3000")).resolves.toEqual(
+      sampleProducts,
+    );
+  });
+
+  it("uses the API error.message when the response is not ok", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: false,
+        status: 500,
+        json: async () => ({
+          error: { code: "SERVER_ERROR", message: "Catalog unavailable" },
+        }),
+      }),
+    );
+
+    await expect(fetchProducts("http://localhost:3000")).rejects.toThrow(
+      "Catalog unavailable",
+    );
+  });
+
+  it("falls back to a status message with a next step when the body is not JSON", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: false,
+        status: 502,
+        json: async () => {
+          throw new Error("no json");
+        },
+      }),
+    );
+
+    await expect(fetchProducts("http://localhost:3000")).rejects.toThrow(
+      /HTTP 502.*GET \/health/,
+    );
+  });
+
+  it("explains network failures with a next step", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockRejectedValue(new TypeError("Failed to fetch")),
+    );
+
+    await expect(fetchProducts("http://localhost:3000")).rejects.toThrow(
+      /Could not reach the API/,
+    );
   });
 });
