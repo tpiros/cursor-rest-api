@@ -36,7 +36,7 @@ export default function App() {
       .then((data) => {
         if (cancelled) return;
         setProducts(data);
-        if (!category) {
+        if (!filters.category) {
           setCategoryOptions(uniqueCategories(data));
         }
       })
@@ -52,7 +52,7 @@ export default function App() {
     return () => {
       cancelled = true;
     };
-  }, [filters, category]);
+  }, [filters]);
 
   return (
     <main className="page">

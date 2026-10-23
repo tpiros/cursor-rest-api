@@ -42,3 +42,14 @@ npm test
 
 - Catalog data comes from the API seed fixtures (made-up sample products).
 - Change `VITE_API_URL` in `.env` if the API listens on another host/port.
+- Restart `npm run dev` after changing `.env` — Vite only reads env files at startup.
+- The API allows browser requests from other origins (CORS). You still need both processes running.
+
+## Troubleshooting
+
+| Symptom | What to check |
+| --- | --- |
+| “Missing VITE_API_URL…” | Copy `.env.example` to `.env` in `ui/`, then restart Vite. |
+| “Could not reach the API…” | Start the API from the repo root (`npm run dev`) and confirm `VITE_API_URL` matches its host/port. |
+| Empty list with filters | Clear category / uncheck “In stock only”, or confirm seed data includes that category. |
+| Filters stay on “All” only | The first successful unfiltered load fills categories — fix connectivity first. |
