@@ -1,0 +1,52 @@
+# Secrets & credentials (defense in depth beyond Cursor defaults / .gitignore)
+.env
+.env.*
+!.env.example
+!.env.*.example
+.env.local
+.env.*.local
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.keystore
+id_rsa
+id_rsa*
+.npmrc
+.yarnrc
+.yarnrc.yml
+**/credentials.json
+**/secrets.json
+**/service-account*.json
+**/*credentials*
+**/*secret*
+.aws/
+**/*.tfvars
+docker-compose*.override.yml
+
+# Personal / customer data (adjust patterns to your domain)
+uploads/
+exports/
+dumps/
+backups/
+**/*-export.json
+**/*.dump
+**/customers*.json
+
+# Large / generated folders that slow indexing and search
+node_modules/
+coverage/
+dist/
+build/
+.cache/
+.turbo/
+.parcel-cache/
+.eslintcache
+
+# Local noise
+*.log
+logs/
+.DS_Store
+tmp/
+temp/
