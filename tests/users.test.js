@@ -54,7 +54,8 @@ describe("GET /users/:id", () => {
     expect(response.body).toEqual({
       error: {
         code: "NOT_FOUND",
-        message: "User with id 999 not found",
+        message:
+          "No user with id 999. List users with GET /users and retry with an id from that list.",
       },
     });
   });
@@ -81,12 +82,30 @@ describe("POST /users", () => {
   });
 
   it.each([
-    [{ email: "ada@example.com" }, "name is required"],
-    [{ name: "Ada Lovelace" }, "email is required"],
-    [{ name: "", email: "ada@example.com" }, "name is required"],
-    [{ name: "Ada Lovelace", email: "" }, "email is required"],
-    [{ name: "   ", email: "ada@example.com" }, "name is required"],
-    [{ name: "Ada Lovelace", email: "   " }, "email is required"],
+    [
+      { email: "ada@example.com" },
+      'Missing or empty "name". Include a non-empty string "name" in the JSON body.',
+    ],
+    [
+      { name: "Ada Lovelace" },
+      'Missing or empty "email". Include a non-empty string "email" in the JSON body.',
+    ],
+    [
+      { name: "", email: "ada@example.com" },
+      'Missing or empty "name". Include a non-empty string "name" in the JSON body.',
+    ],
+    [
+      { name: "Ada Lovelace", email: "" },
+      'Missing or empty "email". Include a non-empty string "email" in the JSON body.',
+    ],
+    [
+      { name: "   ", email: "ada@example.com" },
+      'Missing or empty "name". Include a non-empty string "name" in the JSON body.',
+    ],
+    [
+      { name: "Ada Lovelace", email: "   " },
+      'Missing or empty "email". Include a non-empty string "email" in the JSON body.',
+    ],
   ])("returns 400 when the body is %j", async (body, message) => {
     const response = await request(app).post("/users").send(body);
 

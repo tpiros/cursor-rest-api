@@ -79,7 +79,8 @@ describe("GET /products/:id", () => {
     expect(res.body).toEqual({
       error: {
         code: "NOT_FOUND",
-        message: "Product with id 999 not found",
+        message:
+          "No product with id 999. List products with GET /products and retry with an id from that list.",
       },
     });
   });

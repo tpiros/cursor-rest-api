@@ -39,7 +39,12 @@ app.get("/users/:id", (req, res) => {
   const id = Number(req.params.id);
   const user = users.find((u) => u.id === id);
   if (!user) {
-    return sendError(res, 404, "NOT_FOUND", `User with id ${req.params.id} not found`);
+    return sendError(
+      res,
+      404,
+      "NOT_FOUND",
+      `No user with id ${req.params.id}. List users with GET /users and retry with an id from that list.`,
+    );
   }
   res.json(user);
 });
@@ -48,10 +53,20 @@ app.post("/users", (req, res) => {
   const { name, email, role } = req.body ?? {};
 
   if (!name || typeof name !== "string" || !name.trim()) {
-    return sendError(res, 400, "VALIDATION_ERROR", "name is required");
+    return sendError(
+      res,
+      400,
+      "VALIDATION_ERROR",
+      'Missing or empty "name". Include a non-empty string "name" in the JSON body.',
+    );
   }
   if (!email || typeof email !== "string" || !email.trim()) {
-    return sendError(res, 400, "VALIDATION_ERROR", "email is required");
+    return sendError(
+      res,
+      400,
+      "VALIDATION_ERROR",
+      'Missing or empty "email". Include a non-empty string "email" in the JSON body.',
+    );
   }
 
   const nextId = users.reduce((max, u) => Math.max(max, u.id), 0) + 1;
@@ -82,13 +97,23 @@ app.get("/products/:id", (req, res) => {
   const id = Number(req.params.id);
   const product = products.find((p) => p.id === id);
   if (!product) {
-    return sendError(res, 404, "NOT_FOUND", `Product with id ${req.params.id} not found`);
+    return sendError(
+      res,
+      404,
+      "NOT_FOUND",
+      `No product with id ${req.params.id}. List products with GET /products and retry with an id from that list.`,
+    );
   }
   res.json(product);
 });
 
 app.use((_req, res) => {
-  sendError(res, 404, "NOT_FOUND", "Route not found");
+  sendError(
+    res,
+    404,
+    "NOT_FOUND",
+    "No route matches this request. Check the path and HTTP method, or try GET /health.",
+  );
 });
 
 export default app;

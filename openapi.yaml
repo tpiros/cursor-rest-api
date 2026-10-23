@@ -8,8 +8,9 @@ info:
     that in-memory list until the process exits. There is no authentication.
 
     Any request that does not match a path below responds with `404` and
-    the Error schema: `error.code` is `NOT_FOUND` and `error.message` is
-    `Route not found`.
+    the Error schema: `error.code` is `NOT_FOUND` and `error.message`
+    explains that no route matched and suggests checking the path/method
+    or trying `GET /health`.
 servers:
   - url: http://localhost:3000
     description: Local server. `PORT` overrides the port; the default is 3000.
@@ -148,8 +149,8 @@ paths:
         "400":
           description: |
             `name` or `email` is missing, not a string, or blank after trimming.
-            `name` is checked first. If both are invalid, the message is
-            `name is required`.
+            `name` is checked first. If both are invalid, the message explains
+            that `name` is missing or empty.
           content:
             application/json:
               schema:
@@ -160,13 +161,17 @@ paths:
                   value:
                     error:
                       code: VALIDATION_ERROR
-                      message: name is required
+                      message: >-
+                        Missing or empty "name". Include a non-empty string
+                        "name" in the JSON body.
                 emailRequired:
                   summary: Email missing or blank
                   value:
                     error:
                       code: VALIDATION_ERROR
-                      message: email is required
+                      message: >-
+                        Missing or empty "email". Include a non-empty string
+                        "email" in the JSON body.
 
   /users/{id}:
     get:
@@ -200,7 +205,9 @@ paths:
               example:
                 error:
                   code: NOT_FOUND
-                  message: User with id 999 not found
+                  message: >-
+                    No user with id 999. List users with GET /users and retry
+                    with an id from that list.
 
   /products:
     get:
@@ -335,7 +342,9 @@ paths:
               example:
                 error:
                   code: NOT_FOUND
-                  message: Product with id 999 not found
+                  message: >-
+                    No product with id 999. List products with GET /products and
+                    retry with an id from that list.
 
 components:
   parameters:
@@ -401,14 +410,17 @@ components:
           type: string
           description: |
             Required. Missing, non-string, or blank (including whitespace-only)
-            values fail with `name is required`. The stored value is trimmed.
+            values fail with a message that `name` is missing or empty and that
+            a non-empty string `name` must be included in the JSON body. The
+            stored value is trimmed.
           example: Mia Chen
         email:
           type: string
           description: |
             Required. Missing, non-string, or blank (including whitespace-only)
-            values fail with `email is required`. The stored value is trimmed.
-            Format is not validated.
+            values fail with a message that `email` is missing or empty and that
+            a non-empty string `email` must be included in the JSON body. The
+            stored value is trimmed. Format is not validated.
           example: mia@example.com
         role:
           type: string
@@ -470,4 +482,6 @@ components:
       example:
         error:
           code: NOT_FOUND
-          message: User with id 999 not found
+          message: >-
+            No user with id 999. List users with GET /users and retry with an
+            id from that list.
