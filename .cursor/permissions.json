@@ -1,0 +1,46 @@
+{
+  // Safe everyday commands for this Express training API.
+  // Intentionally NOT bare "git" or "npm" — those would auto-allow push/publish.
+  "terminalAllowlist": [
+    "npm install",
+    "npm ci",
+    "npm:install*",
+    "npm run",
+    "npm start",
+    "npm test",
+    "node",
+    "curl",
+    "git status",
+    "git diff",
+    "git log",
+    "git show",
+    "git branch",
+    "git add",
+    "git commit",
+    "git rev-parse",
+    "git ls-files",
+    "ls",
+    "pwd",
+    "head",
+    "tail",
+    "wc",
+    "rg",
+    "find",
+    "echo",
+    "which"
+  ],
+  "autoRun": {
+    "allow_instructions": [
+      "Allow local Node and npm workflows for this Express API: install, npm run dev, npm start, npm test, and running node against src/ or tests/.",
+      "Allow read-only git inspection and ordinary local commits (status, diff, log, add, commit) when the user asked to commit.",
+      "Allow curl against localhost for health and API smoke checks."
+    ],
+    "block_instructions": [
+      "Require approval for any command that deletes files or directories (rm, rmdir, git clean, git reset --hard).",
+      "Require approval for deploy, release, or publish actions (npm publish, docker push, kubectl apply, terraform apply, vercel, flyctl, heroku).",
+      "Require approval for cloud account CLIs (aws, gcloud, az, doctl, firebase, wrangler) and for reading or printing .env, secrets, keys, or credential files.",
+      "Require approval for git push (including --force), changing remotes, or rewriting history.",
+      "Require approval for installing global packages or modifying npm auth config."
+    ]
+  }
+}
