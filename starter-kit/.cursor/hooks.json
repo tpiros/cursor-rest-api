@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "hooks": {
+    "afterFileEdit": [
+      {
+        "command": ".cursor/hooks/record-edit.mjs"
+      }
+    ],
+    "stop": [
+      {
+        "command": ".cursor/hooks/verify-completion.mjs",
+        "loop_limit": 2
+      }
+    ]
+  }
+}

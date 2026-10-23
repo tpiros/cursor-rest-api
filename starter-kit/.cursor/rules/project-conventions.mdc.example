@@ -1,0 +1,14 @@
+---
+description: Project conventions — copy to .mdc, rename, and scope with globs
+globs: src/**,tests/**,openapi.yaml
+alwaysApply: false
+---
+
+# Project conventions
+
+- Stack and module system (language, framework, package manager)
+- Persistence / data rules agents must not violate
+- Error or response envelope the API/UI must keep
+- Docs that must update in the same change as behaviour
+- Test runner and how tests should import the app (no live listeners, etc.)
+- Prefer smallest safe diffs; no drive-by refactors
