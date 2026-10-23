@@ -1,0 +1,13 @@
+---
+description: Express API conventions for this training REST API
+alwaysApply: true
+---
+
+# API conventions
+
+- Stack: Node.js ≥24, Express 5, ESM (`"type": "module"`). Use npm only.
+- Persist nothing: seed JSON under `data/` loads into memory at process start.
+- Errors must use `{ error: { code, message } }` (see `sendError` in `src/index.js`).
+- When adding or changing routes, update `openapi.yaml` in the same change.
+- Tests: Vitest + supertest. Import the default `app` export; do not start a listener in tests.
+- Prefer smallest safe diffs. No drive-by refactors.

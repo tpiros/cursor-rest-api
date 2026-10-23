@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { describe, expect, it } from "@jest/globals";
+import { describe, expect, it } from "vitest";
 import request from "supertest";
 import app from "../src/index.js";
 

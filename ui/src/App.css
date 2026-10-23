@@ -1,0 +1,100 @@
+.page {
+  max-width: 42rem;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 3rem;
+}
+
+.header h1 {
+  margin: 0 0 0.35rem;
+  font-size: 1.75rem;
+  letter-spacing: -0.02em;
+}
+
+.header p {
+  margin: 0;
+  color: #5c5a55;
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 1.5rem;
+  align-items: end;
+  margin: 1.75rem 0 1.25rem;
+}
+
+.filters label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.85rem;
+  color: #3d3b36;
+}
+
+.filters select {
+  min-width: 12rem;
+  padding: 0.45rem 0.55rem;
+  border: 1px solid #cfcac0;
+  border-radius: 4px;
+  background: #fff;
+  font: inherit;
+}
+
+.checkbox {
+  flex-direction: row !important;
+  align-items: center;
+  gap: 0.5rem !important;
+  padding-bottom: 0.35rem;
+}
+
+.status {
+  color: #5c5a55;
+}
+
+.status.error {
+  color: #8b1e1e;
+}
+
+.product-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid #e4e0d7;
+}
+
+.product,
+.empty {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.9rem 0;
+  border-bottom: 1px solid #e4e0d7;
+}
+
+.meta {
+  display: block;
+  margin-top: 0.2rem;
+  font-size: 0.85rem;
+  color: #6f6b63;
+  text-transform: capitalize;
+}
+
+.side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.25rem;
+  white-space: nowrap;
+}
+
+.stock {
+  font-size: 0.8rem;
+}
+
+.stock.in {
+  color: #1f6b3a;
+}
+
+.stock.out {
+  color: #8b1e1e;
+}

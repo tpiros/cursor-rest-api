@@ -1,5 +1,5 @@
 import request from "supertest";
-import { describe, expect, it } from "@jest/globals";
+import { describe, expect, it } from "vitest";
 import app from "../src/index.js";
 
 const seedUsers = [

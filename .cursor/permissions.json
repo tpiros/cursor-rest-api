@@ -1,6 +1,7 @@
 {
   // Safe everyday commands for this Express training API.
-  // Intentionally NOT bare "git" or "npm" — those would auto-allow push/publish.
+  // Not bare "git" or "npm" — those would auto-allow push/publish.
+  // git add/commit intentionally omitted: commit only when the user asks.
   "terminalAllowlist": [
     "npm install",
     "npm ci",
@@ -15,8 +16,6 @@
     "git log",
     "git show",
     "git branch",
-    "git add",
-    "git commit",
     "git rev-parse",
     "git ls-files",
     "ls",
@@ -32,14 +31,14 @@
   "autoRun": {
     "allow_instructions": [
       "Allow local Node and npm workflows for this Express API: install, npm run dev, npm start, npm test, and running node against src/ or tests/.",
-      "Allow read-only git inspection and ordinary local commits (status, diff, log, add, commit) when the user asked to commit.",
+      "Allow read-only git inspection (status, diff, log, show, branch).",
       "Allow curl against localhost for health and API smoke checks."
     ],
     "block_instructions": [
       "Require approval for any command that deletes files or directories (rm, rmdir, git clean, git reset --hard).",
+      "Require approval for git add, git commit, git push (including --force), changing remotes, or rewriting history — only when the user explicitly asked to commit or push.",
       "Require approval for deploy, release, or publish actions (npm publish, docker push, kubectl apply, terraform apply, vercel, flyctl, heroku).",
       "Require approval for cloud account CLIs (aws, gcloud, az, doctl, firebase, wrangler) and for reading or printing .env, secrets, keys, or credential files.",
-      "Require approval for git push (including --force), changing remotes, or rewriting history.",
       "Require approval for installing global packages or modifying npm auth config."
     ]
   }

@@ -3,6 +3,8 @@
 .env.*
 !.env.example
 !.env.*.example
+.env.local
+.env.*.local
 *.pem
 *.key
 *.p12
@@ -19,6 +21,9 @@ id_rsa*
 **/service-account*.json
 **/*credentials*
 **/*secret*
+.aws/
+**/*.tfvars
+docker-compose*.override.yml
 
 # Personal / customer data as the app grows (seed fixtures in data/ stay readable)
 uploads/
